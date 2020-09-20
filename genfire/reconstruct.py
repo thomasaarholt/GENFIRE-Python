@@ -13,7 +13,8 @@ Copyright 2015-2016. All rights reserved.
 
 from __future__ import division
 import matplotlib
-matplotlib.use("Qt5Agg")
+import cupy as cp
+#matplotlib.use("Qt5Agg")
 import matplotlib.pyplot as plt
 import os
 import scipy.io
@@ -87,6 +88,9 @@ if __name__ != "__main__":
         iterationNumsToChangeCutoff = np.append(iterationNumsToChangeCutoff,1e30) #add an arbitrarily high number to the end that is an iteration number that won't be reached
         constraintEnforcementDelayIndicators = constraintEnforcementDelayIndicators[uniqueIndices]
         currentCutoffNum = 0
+        ###
+        
+        initialObject = cp.asarray(initialObject)
         for iterationNum in range(1, numIterations+1): #iterations are counted started from 1
 
             if iterationNum == iterationNumsToChangeCutoff[currentCutoffNum]: #update current Fourier constraint if appropriate
@@ -102,10 +106,10 @@ if __name__ != "__main__":
                 initialObject = initialObject * support #enforce support
 
             #take FFT of current reconstruction
-            k = rfftn(initialObject)
+            fftObject = cp.fft.rfftn(initialObject)
 
             #compute error
-            errK[iterationNum-1] = np.sum(abs(np.abs(k[errInd])-np.abs(measuredK[errInd])))/np.sum(abs(measuredK[errInd]))#monitor error
+            errK[iterationNum-1] = np.sum(abs(np.abs(fftObject[errInd])-np.abs(measuredK[errInd])))/np.sum(abs(measuredK[errInd]))#monitor error
             if verbose:
                 print("Iteration number: {0}/{1}           error = {2:0.5f}".format(iterationNum, numIterations, errK[iterationNum-1]))
 
@@ -126,15 +130,15 @@ if __name__ != "__main__":
 
                     tmpVals = np.abs(R_freeVals_complex[shellNum])
                     # Rfree_numerator                         = np.sum(abs(k[tmpIndX, tmpIndY, tmpIndZ] - tmpVals))
-                    Rfree_numerator                         = np.sum(abs(np.abs(k[tmpIndX, tmpIndY, tmpIndZ]) - tmpVals))
+                    Rfree_numerator                         = np.sum(abs(np.abs(fftObject[tmpIndX, tmpIndY, tmpIndZ]) - tmpVals))
                     Rfree_denominator                       = np.sum(abs(tmpVals))
                     total_Rfree_error                      += Rfree_numerator
                     total_Rfree_error_norm                 += Rfree_denominator
                     Rfree_complex_bybin[shellNum, iterationNum-1] = Rfree_numerator / Rfree_denominator
                 Rfree_complex_total[iterationNum-1] = total_Rfree_error / total_Rfree_error_norm
             #replace Fourier components with ones from measured data from the current set of constraints
-            k[constraintInd_complex] = measuredK[constraintInd_complex]
-            initialObject = irfftn(k)
+            fftObject[constraintInd_complex] = measuredK[constraintInd_complex]
+            initialObject = cp.fft.irfftn(fftObject)
 
             #update display
             if displayFigure.DisplayFigureON:

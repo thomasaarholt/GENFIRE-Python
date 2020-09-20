@@ -13,7 +13,7 @@ Copyright 2015-2016. All rights reserved.
 from genfire.gui import VolumeSlicer_MainWindow
 from PyQt5 import QtCore, QtGui, QtWidgets
 import matplotlib
-matplotlib.use("Qt5Agg")
+#matplotlib.use("Qt5Agg")
 import matplotlib.pyplot as plt
 from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
 from matplotlib.backends.backend_qt5agg import NavigationToolbar2QT as NavigationToolbar

@@ -13,7 +13,7 @@ Copyright 2015-2016. All rights reserved.
 
 from PyQt5 import QtCore, QtGui, QtWidgets
 import matplotlib
-matplotlib.use("Qt5Agg")
+#matplotlib.use("Qt5Agg")
 from genfire.gui import ProjectionCalculator, VolumeSlicer, GENFIRE_MainWindow
 import os
 import sys
@@ -474,7 +474,6 @@ class GenfireLogger(QtCore.QObject):
             self.listener_thread.wait()
 
 def main():
-
     # Startup the application
     app = QtWidgets.QApplication(sys.argv)
     # app.setStyle('plastique')
